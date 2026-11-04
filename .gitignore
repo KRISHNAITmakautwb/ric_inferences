@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+node_modules/
+
+# runtime output and secrets
+logs/
+cache_db/
+*.db
+config.local.yaml

@@ -1,0 +1,58 @@
+# ============================================================
+#  RIC Pipeline Configuration
+#  Router → Inference → Cache
+#  Lab Server (AESed) + OmniRoute Setup
+# ============================================================
+
+local:
+  host: "localhost"          # Ollama is running on THIS machine (AESed)
+  port: 11434                # Ollama default port
+  model: "gemma4:latest"     # Available: gemma4:latest, qwen2.5-coder:14b, llama3:8b
+  timeout: 60                # seconds
+  fallback_to_cloud: true    # If local fails → automatically use cloud
+
+cloud:
+  base_url: "http://10.10.1.226:20128/v1"    # OmniRoute gateway
+  api_key: ""                   # leave empty: set OMNIROUTE_API_KEY in your shell instead   # OmniRoute API key
+  model: "tencent/hy3:free"              # Free model (same as your active Hermes model)
+  # Alternatives: oc/qwen3.6-plus-free | zm/z-ai/glm-4.6v-flash
+  timeout: 120               # seconds
+
+router:
+  mode: "heuristic"          # Heuristic routing with automatic cloud→local fallback
+  # mode: "always_local"    # Use this to force all queries to local Ollama only
+  complexity_threshold: 60  # Word count threshold for cloud routing
+  local_keywords:
+    - "translate"
+    - "summarize briefly"
+    - "what is"
+    - "define"
+    - "list"
+    - "simple"
+  cloud_keywords:
+    - "analyze"
+    - "write code"
+    - "debug"
+    - "compare in detail"
+    - "research"
+    - "explain deeply"
+    - "step by step"
+    - "architecture"
+
+cache:
+  backend: "sqlite"          # Options: "sqlite" | "redis"
+  db_path: "./cache_db/ric_cache.db"
+  ttl_hours: 24              # Cache time-to-live
+  max_entries: 10000
+  # Redis settings (only if backend: "redis")
+  redis_host: "localhost"
+  redis_port: 6379
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+
+logging:
+  level: "INFO"              # DEBUG | INFO | WARNING | ERROR
+  log_file: "./logs/ric.log"
